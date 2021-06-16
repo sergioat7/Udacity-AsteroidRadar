@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 Sergio Aragonés. All rights reserved.
+ * Created by Sergio Aragonés on 13/6/2021
+ */
+
 package com.udacity.asteroidradar.api
 
 import com.squareup.moshi.Moshi
