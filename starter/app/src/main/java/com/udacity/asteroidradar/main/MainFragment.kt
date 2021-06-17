@@ -6,19 +6,30 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
+import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by lazy {
         ViewModelProvider(this).get(MainViewModel::class.java)
     }
+    private val adapter = AsteroidAdapter()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val binding = FragmentMainBinding.inflate(inflater)
-        binding.lifecycleOwner = this
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
-        binding.viewModel = viewModel
+        val binding = FragmentMainBinding.inflate(inflater).apply {
+
+            lifecycleOwner = this@MainFragment
+            viewModel = this@MainFragment.viewModel
+            adapter = this@MainFragment.adapter
+        }
+
+        viewModel.nearObjects.observe(viewLifecycleOwner, {
+            adapter.submitList(it)
+        })
 
         setHasOptionsMenu(true)
 
