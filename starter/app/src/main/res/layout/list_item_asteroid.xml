@@ -12,11 +12,16 @@
             name="asteroid"
             type="com.udacity.asteroidradar.Asteroid" />
 
+        <variable
+            name="clickListener"
+            type="com.udacity.asteroidradar.main.AsteroidAdapter.AsteroidListener" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> clickListener.onClick(asteroid)}">
 
         <ImageView
             android:id="@+id/imageViewHazardous"

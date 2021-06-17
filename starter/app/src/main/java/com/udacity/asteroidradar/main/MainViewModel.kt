@@ -16,16 +16,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val asteroidDao = AsteroidDatabase.getInstance(application).asteroidDatabaseDao
     private val _pictureOfDay = MutableLiveData<PictureOfDay?>()
+    private val _navigateToAsteroidDetail = MutableLiveData<Asteroid?>()
 
     var nearObjects: LiveData<List<Asteroid>> = Transformations.map(asteroidDao.getAll()) {
         it
     }
     val pictureOfDay: LiveData<PictureOfDay?>
         get() = _pictureOfDay
+    val navigateToAsteroidDetail: LiveData<Asteroid?>
+        get() = _navigateToAsteroidDetail
 
     init {
         getNearEarthObjects()
         getPictureOfDay()
+    }
+
+    fun onAsteroidClicked(asteroid: Asteroid) {
+        _navigateToAsteroidDetail.value = asteroid
+    }
+
+    fun onAsteroidDetailNavigated() {
+        _navigateToAsteroidDetail.value = null
     }
 
     private fun getNearEarthObjects() {
