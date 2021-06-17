@@ -5,9 +5,11 @@ import androidx.lifecycle.*
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NasaApi
+import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -18,7 +20,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         get() = _pictureOfDay
 
     init {
+        getNearEarthObjects()
         getPictureOfDay()
+    }
+
+    private fun getNearEarthObjects() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+
+                val objects = NasaApi.retrofitService.getNearEarthObjects(Constants.API_KEY)
+                val asteroids = parseAsteroidsJsonResult(JSONObject(objects))
+                asteroidDao.insertAll(asteroids)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun getPictureOfDay() {
