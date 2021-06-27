@@ -53,6 +53,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/asteroid_recycler"
             adapter="@{adapter}"
+            data="@{viewModel.nearObjects}"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

@@ -32,10 +32,6 @@ class MainFragment : Fragment() {
             adapter = this@MainFragment.adapter
         }
 
-        viewModel.nearObjects.observe(viewLifecycleOwner, {
-            adapter.submitList(it)
-        })
-
         viewModel.navigateToAsteroidDetail.observe(viewLifecycleOwner, {
             it?.let { asteroid ->
                 findNavController().navigate(MainFragmentDirections.actionShowDetail(asteroid))

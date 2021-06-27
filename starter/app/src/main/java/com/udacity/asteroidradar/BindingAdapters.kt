@@ -61,3 +61,11 @@ fun bindRecyclerViewAdapter(
         recyclerView.adapter = it
     }
 }
+
+@BindingAdapter("data")
+fun bindRecyclerViewData(
+    recyclerView: RecyclerView,
+    list: List<Nothing>?
+) {
+    (recyclerView.adapter as? ListAdapter<*, *>)?.submitList(list)
+}
