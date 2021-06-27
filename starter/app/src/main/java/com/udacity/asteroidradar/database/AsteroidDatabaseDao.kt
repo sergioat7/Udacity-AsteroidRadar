@@ -5,7 +5,6 @@
 
 package com.udacity.asteroidradar.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.udacity.asteroidradar.Asteroid
 
@@ -19,7 +18,7 @@ interface AsteroidDatabaseDao {
     suspend fun update(asteroid: Asteroid)
 
     @Query("SELECT * FROM asteroid_table ORDER BY close_approach_date DESC")
-    fun getAll(): LiveData<List<Asteroid>>
+    suspend fun getAll(): List<Asteroid>
 
     @Delete
     suspend fun delete(asteroids: List<Asteroid>)

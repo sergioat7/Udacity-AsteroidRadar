@@ -5,6 +5,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -50,6 +51,14 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        viewModel.updateFilter(
+            when (item.itemId) {
+                R.id.show_week_menu -> Constants.NasaApiFilter.SHOW_WEEK
+                R.id.show_today_menu -> Constants.NasaApiFilter.SHOW_TODAY
+                else -> Constants.NasaApiFilter.SHOW_SAVED
+            }
+        )
         return true
     }
 }
