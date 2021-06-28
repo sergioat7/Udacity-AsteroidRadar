@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
-import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.getNextSevenDaysFormattedDates
 import com.udacity.asteroidradar.api.getTodayFormattedDate
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
@@ -19,7 +18,7 @@ import org.json.JSONObject
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val asteroidDao = AsteroidDatabase.getInstance(application).asteroidDatabaseDao
+    private val mainRepository = MainRepository(AsteroidDatabase.getInstance(application))
     private val _nearObjects = MutableLiveData<List<Asteroid>>()
     private val _pictureOfDay = MutableLiveData<PictureOfDay?>()
     private val _navigateToAsteroidDetail = MutableLiveData<Asteroid?>()
@@ -33,7 +32,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         updateFilter(Constants.NasaApiFilter.SHOW_SAVED)
-        getPictureOfDay()
+        viewModelScope.launch {
+            _pictureOfDay.postValue(mainRepository.getPictureOfDay())
+        }
     }
 
     fun updateFilter(filter: Constants.NasaApiFilter) {
@@ -42,7 +43,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             when (filter) {
 
                 Constants.NasaApiFilter.SHOW_WEEK -> {
-                    getNearEarthObjects(null, null)?.let {
+                    mainRepository.getNearEarthObjects(null, null)?.let {
 
                         _nearObjects.postValue(
                             parseAsteroidsJsonResult(
@@ -50,10 +51,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 getNextSevenDaysFormattedDates()
                             )
                         )
+                    } ?: run {
+                        _nearObjects.postValue(listOf())
                     }
                 }
                 Constants.NasaApiFilter.SHOW_TODAY -> {
-                    getNearEarthObjects(getTodayFormattedDate(), getTodayFormattedDate())?.let {
+                    mainRepository.getNearEarthObjects(
+                        getTodayFormattedDate(),
+                        getTodayFormattedDate()
+                    )?.let {
 
                         _nearObjects.postValue(
                             parseAsteroidsJsonResult(
@@ -61,10 +67,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 listOf(getTodayFormattedDate())
                             )
                         )
+                    } ?: run {
+                        _nearObjects.postValue(listOf())
                     }
                 }
                 Constants.NasaApiFilter.SHOW_SAVED -> {
-                    _nearObjects.postValue(asteroidDao.getAll())
+                    _nearObjects.postValue(mainRepository.getSavedAsteroids())
                 }
             }
         }
@@ -76,37 +84,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onAsteroidDetailNavigated() {
         _navigateToAsteroidDetail.value = null
-    }
-
-    private suspend fun getNearEarthObjects(startDate: String?, endDate: String?): String? {
-
-        return try {
-
-            NasaApi.retrofitService.getNearEarthObjects(
-                startDate,
-                endDate,
-                Constants.API_KEY
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    private fun getPictureOfDay() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-
-                val imageOfTheDay = NasaApi.retrofitService.getImageOfTheDay(Constants.API_KEY)
-                _pictureOfDay.postValue(
-                    when (imageOfTheDay.mediaType) {
-                        "image" -> imageOfTheDay
-                        else -> null
-                    }
-                )
-            } catch (e: Exception) {
-                _pictureOfDay.postValue(null)
-            }
-        }
     }
 }

@@ -5,21 +5,22 @@
 
 package com.udacity.asteroidradar.database
 
-import androidx.room.*
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.udacity.asteroidradar.Asteroid
 
 @Dao
 interface AsteroidDatabaseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(asteroids: List<Asteroid>)
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(asteroid: Asteroid)
+    suspend fun insertAll(vararg asteroids: Asteroid)
 
     @Query("SELECT * FROM asteroid_table ORDER BY close_approach_date DESC")
     suspend fun getAll(): List<Asteroid>
 
-    @Delete
-    suspend fun delete(asteroids: List<Asteroid>)
+    @Query("DELETE FROM asteroid_table")
+    suspend fun deleteAll()
 }
