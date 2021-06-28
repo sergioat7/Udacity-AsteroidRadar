@@ -21,12 +21,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val mainRepository = MainRepository(AsteroidDatabase.getInstance(application))
     private val _nearObjects = MutableLiveData<List<Asteroid>>()
     private val _pictureOfDay = MutableLiveData<PictureOfDay?>()
+    private val _loading = MutableLiveData(false)
     private val _navigateToAsteroidDetail = MutableLiveData<Asteroid?>()
 
     val nearObjects: LiveData<List<Asteroid>>
         get() = _nearObjects
     val pictureOfDay: LiveData<PictureOfDay?>
         get() = _pictureOfDay
+    val loading: LiveData<Boolean>
+        get() = _loading
     val navigateToAsteroidDetail: LiveData<Asteroid?>
         get() = _navigateToAsteroidDetail
 
@@ -39,6 +42,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateFilter(filter: Constants.NasaApiFilter) {
 
+        _loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             when (filter) {
 
@@ -54,6 +58,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     } ?: run {
                         _nearObjects.postValue(listOf())
                     }
+                    _loading.postValue(false)
                 }
                 Constants.NasaApiFilter.SHOW_TODAY -> {
                     mainRepository.getNearEarthObjects(
@@ -70,9 +75,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     } ?: run {
                         _nearObjects.postValue(listOf())
                     }
+                    _loading.postValue(false)
                 }
                 Constants.NasaApiFilter.SHOW_SAVED -> {
                     _nearObjects.postValue(mainRepository.getSavedAsteroids())
+                    _loading.postValue(false)
                 }
             }
         }
