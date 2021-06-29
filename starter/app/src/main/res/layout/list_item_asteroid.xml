@@ -36,27 +36,27 @@
 
         <TextView
             android:id="@+id/textViewCodename"
+            style="@style/TextView.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_big"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/spacing_medium"
             android:layout_marginEnd="@dimen/spacing_small"
             android:text="@{asteroid.codename}"
-            android:textColor="@color/default_text_color"
             app:layout_constraintEnd_toStartOf="@+id/imageViewHazardous"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textViewCloseApproachDate"
+            style="@style/TextView.Subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_big"
             android:layout_marginTop="@dimen/spacing_small"
             android:layout_marginEnd="@dimen/spacing_small"
-            android:layout_marginBottom="@dimen/spacing_small"
+            android:layout_marginBottom="@dimen/spacing_medium"
             android:text="@{asteroid.closeApproachDate}"
-            android:textColor="@color/text_grey"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageViewHazardous"
             app:layout_constraintStart_toStartOf="parent"

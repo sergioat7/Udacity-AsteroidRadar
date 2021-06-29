@@ -45,6 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:background="#55010613"
+                android:fontFamily="@font/roboto_medium"
                 android:padding="@dimen/spacing_medium"
                 android:text="@string/image_of_the_day"
                 android:textColor="@android:color/white"
