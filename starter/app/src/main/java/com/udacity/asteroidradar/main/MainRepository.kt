@@ -52,17 +52,17 @@ class MainRepository(private val database: AsteroidDatabase) {
     suspend fun refreshTodayAsteroids() {
         withContext(Dispatchers.IO) {
 
-            val todayObjects = NasaApi.retrofitService.getNearEarthObjects(
+            val objects = NasaApi.retrofitService.getNearEarthObjects(
                 null,
                 null,
                 Constants.API_KEY
             )
-            val todayAsteroids = parseAsteroidsJsonResult(
-                JSONObject(todayObjects),
+            val asteroids = parseAsteroidsJsonResult(
+                JSONObject(objects),
                 getNextSevenDaysFormattedDates()
             )
             database.asteroidDatabaseDao.deleteAll()
-            database.asteroidDatabaseDao.insertAll(*todayAsteroids.toTypedArray())
+            database.asteroidDatabaseDao.insertAll(*asteroids.toTypedArray())
         }
     }
 }

@@ -16,6 +16,9 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    buildTypes.each {
+        it.buildConfigField 'String', 'NASA_API_KEY', myApiNasa
+    }
     buildTypes {
         release {
             minifyEnabled false
