@@ -17,15 +17,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     private lateinit var asteroidsLiveData: LiveData<List<Asteroid>>
     private val _pictureOfDay = MutableLiveData<PictureOfDay?>()
-    private val _loading = MutableLiveData(false)
     private val _navigateToAsteroidDetail = MutableLiveData<Asteroid?>()
 
     val asteroids: LiveData<List<Asteroid>>
         get() = _asteroids
     val pictureOfDay: LiveData<PictureOfDay?>
         get() = _pictureOfDay
-    val loading: LiveData<Boolean>
-        get() = _loading
     val navigateToAsteroidDetail: LiveData<Asteroid?>
         get() = _navigateToAsteroidDetail
 
