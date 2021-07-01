@@ -32,22 +32,11 @@ class MainRepository(private val database: AsteroidDatabase) {
         }
     }
 
-    suspend fun getNearEarthObjects(startDate: String?, endDate: String?): String? {
-        return try {
+    fun getWeeklyAsteroids() = database.asteroidDatabaseDao.getWeekly()
 
-            NasaApi.retrofitService.getNearEarthObjects(
-                startDate,
-                endDate,
-                Constants.API_KEY
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
+    fun getTodayAsteroids() = database.asteroidDatabaseDao.getToday()
 
-    suspend fun getSavedAsteroids() =
-        withContext(Dispatchers.IO) { database.asteroidDatabaseDao.getAll() }
+    fun getSavedAsteroids() = database.asteroidDatabaseDao.getAll()
 
     suspend fun refreshTodayAsteroids() {
         withContext(Dispatchers.IO) {

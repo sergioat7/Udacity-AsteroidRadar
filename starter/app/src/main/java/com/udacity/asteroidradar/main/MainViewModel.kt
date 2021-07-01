@@ -1,31 +1,27 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
-import com.udacity.asteroidradar.api.getNextSevenDaysFormattedDates
-import com.udacity.asteroidradar.api.getTodayFormattedDate
-import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidDatabase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mainRepository = MainRepository(AsteroidDatabase.getInstance(application))
-    private val _nearObjects = MutableLiveData<List<Asteroid>>()
+    private val _asteroids = MutableLiveData<List<Asteroid>>()
+    private val asteroidsObserver = Observer<List<Asteroid>> {
+        _asteroids.value = it
+    }
+    private lateinit var asteroidsLiveData: LiveData<List<Asteroid>>
     private val _pictureOfDay = MutableLiveData<PictureOfDay?>()
     private val _loading = MutableLiveData(false)
     private val _navigateToAsteroidDetail = MutableLiveData<Asteroid?>()
 
-    val nearObjects: LiveData<List<Asteroid>>
-        get() = _nearObjects
+    val asteroids: LiveData<List<Asteroid>>
+        get() = _asteroids
     val pictureOfDay: LiveData<PictureOfDay?>
         get() = _pictureOfDay
     val loading: LiveData<Boolean>
@@ -34,52 +30,40 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         get() = _navigateToAsteroidDetail
 
     init {
+
         updateFilter(Constants.NasaApiFilter.SHOW_SAVED)
         viewModelScope.launch {
             _pictureOfDay.postValue(mainRepository.getPictureOfDay())
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        asteroidsLiveData.removeObserver(asteroidsObserver)
+    }
+
     fun updateFilter(filter: Constants.NasaApiFilter) {
 
-        _loading.postValue(true)
-        viewModelScope.launch(Dispatchers.IO) {
-            when (filter) {
+        asteroidsLiveData = getSelection(filter)
+        asteroidsLiveData.observeForever(asteroidsObserver)
+    }
 
-                Constants.NasaApiFilter.SHOW_WEEK -> {
-                    mainRepository.getNearEarthObjects(null, null)?.let {
+    private fun getSelection(filter: Constants.NasaApiFilter): LiveData<List<Asteroid>> {
+        return when (filter) {
 
-                        _nearObjects.postValue(
-                            parseAsteroidsJsonResult(
-                                JSONObject(it),
-                                getNextSevenDaysFormattedDates()
-                            )
-                        )
-                    } ?: run {
-                        _nearObjects.postValue(listOf())
-                    }
-                    _loading.postValue(false)
+            Constants.NasaApiFilter.SHOW_WEEK -> {
+                Transformations.map(mainRepository.getWeeklyAsteroids()) {
+                    it
                 }
-                Constants.NasaApiFilter.SHOW_TODAY -> {
-                    mainRepository.getNearEarthObjects(
-                        getTodayFormattedDate(),
-                        getTodayFormattedDate()
-                    )?.let {
-
-                        _nearObjects.postValue(
-                            parseAsteroidsJsonResult(
-                                JSONObject(it),
-                                listOf(getTodayFormattedDate())
-                            )
-                        )
-                    } ?: run {
-                        _nearObjects.postValue(listOf())
-                    }
-                    _loading.postValue(false)
+            }
+            Constants.NasaApiFilter.SHOW_TODAY -> {
+                Transformations.map(mainRepository.getTodayAsteroids()) {
+                    it
                 }
-                Constants.NasaApiFilter.SHOW_SAVED -> {
-                    _nearObjects.postValue(mainRepository.getSavedAsteroids())
-                    _loading.postValue(false)
+            }
+            Constants.NasaApiFilter.SHOW_SAVED -> {
+                Transformations.map(mainRepository.getSavedAsteroids()) {
+                    it
                 }
             }
         }
